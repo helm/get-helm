@@ -1,0 +1,13 @@
+s3_id: <%= ENV['S3_ID'] %>
+s3_secret: <%= ENV['S3_KEY'] %>
+s3_bucket: <%= ENV['S3_BUCKET'] %>
+cloudfront_distribution_id: <%= ENV['CLOUDFRONT_DIST_ID'] %>
+
+# Below are examples of all the available configurations.
+# See README for more detailed info on each of them.
+
+site: ./
+index_document: install.sh
+exclude_from_upload:
+  - .git
+  - .idea
