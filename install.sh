@@ -26,30 +26,10 @@ EOF
   fi
 }
 
-function get_latest_version {
-  local url="${1}"
-  local version
-  version="$(curl -sI "${url}" | grep "Location:" | sed -n 's%.*helmc/%%;s%/view.*%%p' )"
-
-  if [ -z "${version}" ]; then
-    echo "There doesn't seem to be a version of ${PROGRAM} avaiable at ${url}." 1>&2
-    return 1
-  fi
-
-  url_decode "${version}"
-}
-
-function url_decode {
-  local url_encoded="${1//+/ }"
-  printf '%b' "${url_encoded//%/\\x}"
-}
-
 PROGRAM="helmc"
 PLATFORM="$(uname | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
-HELM_ARTIFACT_REPO="${HELM_ARTIFACT_REPO:-"helm"}"
-HELM_VERSION_URL="https://bintray.com/deis/${HELM_ARTIFACT_REPO}/helmc/_latestVersion"
-HELM_BIN_URL_BASE="https://dl.bintray.com/deis/${HELM_ARTIFACT_REPO}"
+HELM_BIN_URL_BASE="https://storage.googleapis.com/helm-classic"
 
 if [ "${ARCH}" == "x86_64" ]; then
   ARCH="amd64"
@@ -57,15 +37,10 @@ fi
 
 check_platform_arch
 
-VERSION="$(get_latest_version "${HELM_VERSION_URL}")"
-HELM_ZIP="helmc-${VERSION}-${PLATFORM}-${ARCH}.zip"
+HELM_BIN="helmc-latest-${PLATFORM}-${ARCH}"
 
-echo "Downloading ${HELM_ZIP} from Bintray..."
-curl -Ls "${HELM_BIN_URL_BASE}/${HELM_ZIP}" -O
-
-echo "Extracting..."
-unzip -qo "${HELM_ZIP}"
-rm "${HELM_ZIP}"
+echo "Downloading ${HELM_BIN} from Google Cloud Storage..."
+curl -o ${PROGRAM} -s "${HELM_BIN_URL_BASE}/${HELM_BIN}"
 
 chmod +x "${PROGRAM}"
 
